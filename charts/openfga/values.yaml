@@ -1,4 +1,4 @@
-# core image values (prevents nil-pointer on .Values.image.repository)
+# Fixed values.yaml — includes image, grpc, and telemetry keys that templates expect.
 image:
   repository: openfga/openfga
   tag: latest
@@ -18,10 +18,20 @@ datastore:
   engine: postgres
   uri: "postgres://postgres:password@openfga-postgresql:5432/postgres?sslmode=disable"
 
-# <-- added grpc block to satisfy templates that reference .Values.grpc.addr
+# gRPC settings referenced by templates
 grpc:
-  # address the service listens on inside the container. Adjust if your chart expects another format.
   addr: "0.0.0.0:8080"
+
+# telemetry block added to satisfy templates referencing .Values.telemetry.metrics.enabled
+telemetry:
+  metrics:
+    enabled: true
+    # adjust port/path if your chart or container expects different values
+    port: 9090
+    path: /metrics
+  # optional tracing section if chart references it elsewhere; harmless to include
+  tracing:
+    enabled: false
 
 authn:
   method:
