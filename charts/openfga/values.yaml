@@ -1,4 +1,13 @@
+# ---------------------------
+# Required to prevent Helm nil-pointer errors
+# ---------------------------
+image:
+  repository: openfga/openfga
+  tag: latest
+  pullPolicy: IfNotPresent
+
 replicaCount: 1
+
 postgresql:
   enabled: true
   image:
@@ -6,13 +15,16 @@ postgresql:
   auth:
     postgresPassword: password
     database: postgres
+
 datastore:
   engine: postgres
   uri: "postgres://postgres:password@openfga-postgresql:5432/postgres?sslmode=disable"
+
 authn:
   method:
   preshared:
     keys:
-    - MYPreSharedToken1
+      - MYPreSharedToken1
+
 service:
   type: NodePort
