@@ -1,61 +1,40 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: openfga
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: "https://github.com/your-org/your-repo.git"   # <-- REPLACE with your repo
-    targetRevision: HEAD                                   # <-- REPLACE if needed (tag/branch)
-    path: charts/openfga
-    helm:
-      values: |-
-        # Fixed values.yaml — includes image, grpc, and telemetry keys
-        image:
-          repository: openfga/openfga
-          tag: latest
-          pullPolicy: IfNotPresent
+image:
+  repository: openfga/openfga
+  tag: latest
+  pullPolicy: IfNotPresent
 
-        replicaCount: 1
+replicaCount: 1
 
-        postgresql:
-          enabled: true
-          image:
-            repository: bitnamilegacy/postgresql
-          auth:
-            postgresPassword: password
-            database: postgres
+postgresql:
+  enabled: true
+  image:
+    repository: bitnamilegacy/postgresql
+  auth:
+    # REPLACE the following with a secure password before deploying.
+    # Prefer using Kubernetes Secret and reference it here if the chart supports it.
+    postgresPassword: "CHANGE_ME_POSTGRES_PASSWORD"
+    database: postgres
 
-        datastore:
-          engine: postgres
-          uri: "postgres://postgres:password@openfga-postgresql:5432/postgres?sslmode=disable"
+datastore:
+  engine: postgres
+  uri: "postgres://postgres:CHANGE_ME_POSTGRES_PASSWORD@openfga-postgresql:5432/postgres?sslmode=disable"
 
-        grpc:
-          addr: "0.0.0.0:8080"
+grpc:
+  addr: "0.0.0.0:8080"
 
-        telemetry:
-          metrics:
-            enabled: true
-            port: 9090
-            path: /metrics
-          tracing:
-            enabled: false
+telemetry:
+  metrics:
+    enabled: true
+    port: 9090
+    path: /metrics
+  tracing:
+    enabled: false
 
-        authn:
-          method:
-          preshared:
-            keys:
-              - MYPreSharedToken1
+authn:
+  method: ""
+  preshared:
+    keys:
+      - "CHANGE_ME_PRESHARED_KEY_1"
 
-        service:
-          type: NodePort
-  destination:
-    server: "https://kubernetes.default.svc"
-    namespace: openfga
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+service:
+  type: NodePort
