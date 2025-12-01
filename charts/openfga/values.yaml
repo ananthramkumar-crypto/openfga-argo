@@ -1,6 +1,4 @@
-# ---------------------------
-# Required to prevent Helm nil-pointer errors
-# ---------------------------
+# core image values (prevents nil-pointer on .Values.image.repository)
 image:
   repository: openfga/openfga
   tag: latest
@@ -19,6 +17,11 @@ postgresql:
 datastore:
   engine: postgres
   uri: "postgres://postgres:password@openfga-postgresql:5432/postgres?sslmode=disable"
+
+# <-- added grpc block to satisfy templates that reference .Values.grpc.addr
+grpc:
+  # address the service listens on inside the container. Adjust if your chart expects another format.
+  addr: "0.0.0.0:8080"
 
 authn:
   method:
