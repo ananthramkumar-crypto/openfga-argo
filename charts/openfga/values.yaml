@@ -1,43 +1,61 @@
-# Fixed values.yaml — includes image, grpc, and telemetry keys that templates expect.
-image:
-  repository: openfga/openfga
-  tag: latest
-  pullPolicy: IfNotPresent
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: openfga
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: "https://github.com/your-org/your-repo.git"   # <-- REPLACE with your repo
+    targetRevision: HEAD                                   # <-- REPLACE if needed (tag/branch)
+    path: charts/openfga
+    helm:
+      values: |-
+        # Fixed values.yaml — includes image, grpc, and telemetry keys
+        image:
+          repository: openfga/openfga
+          tag: latest
+          pullPolicy: IfNotPresent
 
-replicaCount: 1
+        replicaCount: 1
 
-postgresql:
-  enabled: true
-  image:
-    repository: bitnamilegacy/postgresql
-  auth:
-    postgresPassword: password
-    database: postgres
+        postgresql:
+          enabled: true
+          image:
+            repository: bitnamilegacy/postgresql
+          auth:
+            postgresPassword: password
+            database: postgres
 
-datastore:
-  engine: postgres
-  uri: "postgres://postgres:password@openfga-postgresql:5432/postgres?sslmode=disable"
+        datastore:
+          engine: postgres
+          uri: "postgres://postgres:password@openfga-postgresql:5432/postgres?sslmode=disable"
 
-# gRPC settings referenced by templates
-grpc:
-  addr: "0.0.0.0:8080"
+        grpc:
+          addr: "0.0.0.0:8080"
 
-# telemetry block added to satisfy templates referencing .Values.telemetry.metrics.enabled
-telemetry:
-  metrics:
-    enabled: true
-    # adjust port/path if your chart or container expects different values
-    port: 9090
-    path: /metrics
-  # optional tracing section if chart references it elsewhere; harmless to include
-  tracing:
-    enabled: false
+        telemetry:
+          metrics:
+            enabled: true
+            port: 9090
+            path: /metrics
+          tracing:
+            enabled: false
 
-authn:
-  method:
-  preshared:
-    keys:
-      - MYPreSharedToken1
+        authn:
+          method:
+          preshared:
+            keys:
+              - MYPreSharedToken1
 
-service:
-  type: NodePort
+        service:
+          type: NodePort
+  destination:
+    server: "https://kubernetes.default.svc"
+    namespace: openfga
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
