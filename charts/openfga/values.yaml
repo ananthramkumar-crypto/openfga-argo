@@ -369,23 +369,3 @@ extraObjects: []
 #     storage:
 #       size: 10Gi
 
-
-
-replicaCount: 1
-postgresql:
-  enabled: true
-  image:
-    repository: bitnamilegacy/postgresql
-  auth:
-    postgresPassword: password
-    database: postgres
-datastore:
-  engine: postgres
-  uri: "postgres://postgres:password@openfga-postgresql:5432/postgres?sslmode=disable"
-authn:
-  method:
-  preshared:
-    keys:
-    - MYPreSharedToken1
-service:
-  type: NodePort
